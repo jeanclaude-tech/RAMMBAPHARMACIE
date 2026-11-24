@@ -1,0 +1,2793 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#075e54">
+<meta name="description" content="Gestion professionnelle des Pharmacies Ramba à Bujumbura.">
+<title>Gestion Pharmacie Ramba ERP</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --primary:#075e54;
+  --secondary:#0d9488;
+  --bg:#f1f5f9;
+  --white:#fff;
+  --text:#172033;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --danger:#dc2626;
+  --warning:#d97706;
+  --success:#15803d;
+  --shadow:0 4px 18px rgba(15,23,42,.07);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.login-screen{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  background:linear-gradient(135deg,#064e3b,#0d9488);
+}
+.login-card{
+  background:white;
+  width:100%;
+  max-width:420px;
+  padding:28px;
+  border-radius:18px;
+  box-shadow:var(--shadow);
+}
+.brand{text-align:center;margin-bottom:24px}
+.brand-logo{
+  width:65px;height:65px;
+  margin:auto;
+  display:grid;place-items:center;
+  border-radius:18px;
+  background:var(--primary);
+  color:white;font-size:30px;
+}
+.brand h1{font-size:21px;margin:12px 0 5px}
+.brand p{font-size:13px;color:var(--muted);margin:0}
+.field{margin-bottom:15px}
+.field label{
+  display:block;font-size:13px;
+  font-weight:700;margin-bottom:7px;
+}
+.field input,.field select,.field textarea{
+  width:100%;padding:12px;
+  border:1px solid var(--border);
+  border-radius:9px;background:white;
+  outline:none;
+}
+.field input:focus,.field select:focus,
+.field textarea:focus{border-color:var(--secondary)}
+.btn{
+  border:0;border-radius:9px;
+  padding:11px 15px;
+  font-weight:700;
+}
+.btn-primary{background:var(--primary);color:white}
+.btn-secondary{background:#e0f2f1;color:var(--primary)}
+.btn-danger{background:#fee2e2;color:#991b1b}
+.btn-warning{background:#fef3c7;color:#92400e}
+.btn-success{background:#dcfce7;color:#166534}
+.btn-block{width:100%}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.login-error{
+  margin-top:12px;color:var(--danger);
+  font-size:13px;white-space:pre-wrap;
+}
+.app-layout{min-height:100vh}
+.topbar{
+  height:62px;background:var(--primary);
+  color:white;display:flex;
+  align-items:center;justify-content:space-between;
+  padding:0 16px;position:sticky;top:0;z-index:20;
+}
+.topbar-title{font-weight:800;font-size:16px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.status-dot{
+  display:inline-block;width:8px;height:8px;
+  border-radius:50%;background:#4ade80;margin-right:5px;
+}
+.layout-body{display:flex;min-height:calc(100vh - 62px)}
+.sidebar{
+  width:230px;background:#fff;
+  border-right:1px solid var(--border);
+  padding:15px 10px;flex-shrink:0;
+}
+.nav-title{
+  font-size:11px;color:var(--muted);
+  font-weight:800;padding:10px;
+  text-transform:uppercase;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:10px;
+  width:100%;border:0;background:transparent;
+  color:#334155;text-align:left;
+  padding:12px;border-radius:9px;
+  margin:2px 0;font-weight:600;
+}
+.nav-btn:hover,.nav-btn.active{
+  background:#e0f2f1;color:var(--primary);
+}
+.main-area{flex:1;min-width:0;padding:20px}
+.page-heading{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:12px;flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.page-heading h2{font-size:22px;margin:0}
+.page-heading p{font-size:13px;color:var(--muted);margin:5px 0 0}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;margin-bottom:18px;
+}
+.stat-card,.panel{
+  background:white;border:1px solid var(--border);
+  border-radius:13px;padding:16px;
+  box-shadow:var(--shadow);
+}
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-value{font-size:24px;font-weight:800;margin-top:9px}
+.stat-note{font-size:11px;color:var(--muted);margin-top:5px}
+.panel{margin-bottom:16px;overflow:hidden}
+.panel h3{font-size:16px;margin:0 0 14px}
+.table-wrap{width:100%;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th,td{
+  padding:11px 10px;text-align:left;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+th{background:#f8fafc;color:#475569;font-size:12px}
+.badge{
+  display:inline-block;padding:4px 8px;
+  border-radius:20px;font-size:11px;font-weight:700;
+}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.form-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.notice{
+  padding:12px;border-radius:9px;
+  background:#eff6ff;color:#1e40af;
+  font-size:13px;margin-bottom:12px;
+}
+.empty-state{
+  text-align:center;padding:28px;
+  color:var(--muted);font-size:13px;
+}
+.toast{
+  position:fixed;bottom:18px;right:18px;
+  z-index:100;background:#172033;color:white;
+  padding:13px 17px;border-radius:9px;
+  box-shadow:var(--shadow);max-width:90%;
+  font-size:13px;
+}
+.mobile-menu{display:none}
+@media(max-width:900px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sidebar{width:200px}
+}
+@media(max-width:650px){
+  .topbar{padding:0 11px}
+  .topbar-title{font-size:14px}
+  .mobile-menu{display:inline-block}
+  .layout-body{display:block}
+  .sidebar{
+    display:none;width:100%;
+    border-right:0;border-bottom:1px solid var(--border);
+  }
+  .sidebar.open{display:block}
+  .main-area{padding:12px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .stat-card{padding:12px}
+  .stat-value{font-size:19px}
+  .form-grid{grid-template-columns:1fr}
+  .page-heading h2{font-size:19px}
+}
+@media print{
+  .topbar,.sidebar,.no-print,.actions{display:none!important}
+  body{background:white}
+  .main-area{padding:0}
+  .panel,.stat-card{box-shadow:none}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<section id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-logo">✚</div>
+      <h1>PHARMACIE RAMBA</h1>
+      <p>Système intégré de gestion pharmaceutique</p>
+    </div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Adresse e-mail</label>
+        <input id="loginEmail" type="email"
+          placeholder="nom@exemple.com" required autocomplete="username">
+      </div>
+
+      <div class="field">
+        <label for="loginPassword">Mot de passe</label>
+        <input id="loginPassword" type="password"
+          placeholder="Votre mot de passe" required
+          autocomplete="current-password">
+      </div>
+
+      <button id="loginButton" class="btn btn-primary btn-block" type="submit">
+        SE CONNECTER
+      </button>
+      <div id="loginError" class="login-error"></div>
+    </form>
+    <p style="text-align:center;color:#64748b;font-size:11px;margin-top:22px">
+      Gestion sécurisée des deux pharmacies Ramba · BIF
+    </p>
+  </div>
+</section>
+
+<!-- APPLICATION -->
+<section id="appScreen" class="app-layout hidden">
+
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button id="mobileMenuButton" class="btn btn-secondary mobile-menu"
+        type="button">☰</button>
+      <div class="topbar-title">GESTION PHARMACIE RAMBA</div>
+    </div>
+    <div class="topbar-right">
+      <span id="connectionStatus" style="font-size:11px">
+        <span class="status-dot"></span>En ligne
+      </span>
+      <span id="userDisplay" style="font-size:12px"></span>
+      <button id="logoutButton" class="btn btn-secondary" type="button">
+        Quitter
+      </button>
+    </div>
+  </header>
+
+  <div class="layout-body">
+
+    <aside id="sidebar" class="sidebar">
+      <div class="nav-title">Menu principal</div>
+
+      <button class="nav-btn active" data-page="dashboard">🏠 Accueil</button>
+      <button class="nav-btn" data-page="sales">🛒 Ventes</button>
+      <button class="nav-btn" data-page="medicines">💊 Médicaments</button>
+      <button class="nav-btn" data-page="stock">📦 Stock</button>
+      <button class="nav-btn" data-page="reception">➕ Réception</button>
+      <button class="nav-btn" data-page="alerts">🔔 Alertes</button>
+
+      <div class="nav-title">Administration</div>
+      <button class="nav-btn" data-page="branches">🏥 Pharmacies</button>
+      <button class="nav-btn" data-page="employees">👥 Employés</button>
+      <button class="nav-btn" data-page="invoices">🧾 Factures</button>
+      <button class="nav-btn" data-page="reports">📊 Rapports</button>
+      <button class="nav-btn" data-page="history">📋 Historique</button>
+    </aside>
+
+    <main class="main-area">
+      <div id="pageContent">
+        <div class="empty-state">Chargement de l'application...</div>
+      </div>
+    </main>
+
+  </div>
+</section>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<!-- PART 2/4 CONTINUES HERE -->
+
+
+<script>
+/* =========================================================
+   PART 2/4 — SUPABASE, AUTHENTICATION, DASHBOARD
+   ========================================================= */
+
+// 1. SUPABASE CONFIGURATION
+const SUPABASE_URL = "https://hxwakendowpsllawxink.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_xTcM3AjJCbpF8W_rbUOyxQ_jzCEeq8o";
+
+if (!window.supabase) {
+  throw new Error("La bibliothèque Supabase n'est pas chargée.");
+}
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
+
+// 2. APPLICATION STATE
+let currentUser = null;
+let currentProfile = null;
+let currentMemberships = [];
+let currentBranches = [];
+let currentBranch = null;
+let currentPage = "dashboard";
+let currentMedicines = [];
+let currentStock = [];
+let currentSales = [];
+let currentEmployees = [];
+let currentAlerts = [];
+let currentInvoice = null;
+
+const BIF = new Intl.NumberFormat("fr-FR", {
+  maximumFractionDigits: 0
+});
+
+const $ = (id) => document.getElementById(id);
+
+function money(value) {
+  return BIF.format(Number(value || 0)) + " BIF";
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function toast(message, duration = 3500) {
+  const el = $("toast");
+  if (!el) return;
+  el.textContent = message;
+  el.classList.remove("hidden");
+  clearTimeout(window.rambaToastTimer);
+  window.rambaToastTimer = setTimeout(
+    () => el.classList.add("hidden"),
+    duration
+  );
+}
+
+function showError(error, prefix = "Erreur") {
+  console.error(prefix, error);
+  toast(prefix + " : " + (error?.message || String(error)), 6000);
+}
+
+function setConnectionStatus() {
+  const el = $("connectionStatus");
+  if (!el) return;
+
+  el.innerHTML = navigator.onLine
+    ? '<span class="status-dot"></span>En ligne'
+    : '<span style="color:#fca5a5">●</span> Hors ligne';
+}
+
+window.addEventListener("online", setConnectionStatus);
+window.addEventListener("offline", setConnectionStatus);
+setConnectionStatus();
+
+// 3. DATE HELPERS — BURUNDI UTC+3
+function getBurundiDateString(date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Bujumbura",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(date);
+}
+
+function getBurundiDayRange() {
+  const today = getBurundiDateString();
+  const start = new Date(today + "T00:00:00+03:00");
+  const end = new Date(today + "T00:00:00+03:00");
+  end.setUTCDate(end.getUTCDate() + 1);
+
+  return {
+    start: start.toISOString(),
+    end: end.toISOString()
+  };
+}
+
+// 4. AUTHENTICATION
+async function login(event) {
+  if (event) event.preventDefault();
+
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
+  const button = $("loginButton");
+  const errorBox = $("loginError");
+
+  errorBox.textContent = "";
+
+  if (!email || !password) {
+    errorBox.textContent = "Entrez votre adresse e-mail et mot de passe.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "CONNEXION...";
+
+  try {
+    const { data, error } = await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    currentUser = data.user;
+    await loadUserData();
+
+    $("loginScreen").classList.add("hidden");
+    $("appScreen").classList.remove("hidden");
+
+    $("userDisplay").textContent =
+      currentProfile?.full_name || currentUser.email;
+
+    await showPage("dashboard");
+    toast("Connexion réussie.");
+
+  } catch (error) {
+    console.error("Login:", error);
+    errorBox.textContent = error.message ||
+      "Impossible de se connecter.";
+    await db.auth.signOut();
+    currentUser = null;
+  } finally {
+    button.disabled = false;
+    button.textContent = "SE CONNECTER";
+  }
+}
+
+// 5. LOAD USER PROFILE AND MEMBERSHIPS
+async function loadUserData() {
+  if (!currentUser) {
+    throw new Error("Utilisateur non connecté.");
+  }
+
+  const { data: profile, error: profileError } = await db
+    .from("profiles")
+    .select("id,full_name,phone,is_active")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+
+  if (!profile) {
+    throw new Error(
+      "Profil introuvable. Vérifiez la table profiles."
+    );
+  }
+
+  if (!profile.is_active) {
+    throw new Error("Ce compte est désactivé.");
+  }
+
+  currentProfile = profile;
+
+  const { data: memberships, error: membershipError } = await db
+    .from("memberships")
+    .select("user_id,branch_id,role")
+    .eq("user_id", currentUser.id);
+
+  if (membershipError) throw membershipError;
+
+  currentMemberships = memberships || [];
+
+  if (currentMemberships.length === 0) {
+    throw new Error(
+      "Aucune pharmacie n'est associée à ce compte."
+    );
+  }
+
+  await loadBranches();
+
+  const isSuperAdmin = hasRole("SUPER_ADMIN");
+
+  if (isSuperAdmin) {
+    currentBranch = currentBranches[0] || null;
+  } else {
+    const allowedBranchIds = [
+      ...new Set(currentMemberships.map(m => m.branch_id))
+    ];
+
+    currentBranch = currentBranches.find(
+      b => allowedBranchIds.includes(b.id)
+    ) || null;
+  }
+
+  if (!currentBranch) {
+    throw new Error(
+      "Aucune pharmacie accessible pour cet utilisateur."
+    );
+  }
+}
+
+// 6. ROLE HELPERS
+function hasRole(role) {
+  return currentMemberships.some(
+    m => String(m.role).toUpperCase() === role
+  );
+}
+
+function hasAnyRole(roles) {
+  return roles.some(role => hasRole(role));
+}
+
+function isSuperAdmin() {
+  return hasRole("SUPER_ADMIN");
+}
+
+function getAccessibleBranchIds() {
+  if (isSuperAdmin()) {
+    return currentBranches.map(b => b.id);
+  }
+
+  return [
+    ...new Set(currentMemberships.map(m => m.branch_id))
+  ];
+}
+
+function canManageStock() {
+  return hasAnyRole([
+    "SUPER_ADMIN",
+    "DIRECTOR",
+    "BRANCH_MANAGER",
+    "STOREKEEPER"
+  ]);
+}
+
+function canSell() {
+  return hasAnyRole([
+    "SUPER_ADMIN",
+    "DIRECTOR",
+    "BRANCH_MANAGER",
+    "PHARMACIST",
+    "CASHIER"
+  ]);
+}
+
+function canViewReports() {
+  return hasAnyRole([
+    "SUPER_ADMIN",
+    "DIRECTOR",
+    "BRANCH_MANAGER",
+    "ACCOUNTANT"
+  ]);
+}
+
+// 7. LOAD BRANCHES
+async function loadBranches() {
+  const { data, error } = await db
+    .from("branches")
+    .select("id,code,name,address,phone,is_active")
+    .eq("is_active", true)
+    .order("name");
+
+  if (error) throw error;
+
+  const allBranches = data || [];
+
+  if (isSuperAdmin()) {
+    currentBranches = allBranches;
+  } else {
+    const ids = currentMemberships.map(m => m.branch_id);
+    currentBranches = allBranches.filter(
+      b => ids.includes(b.id)
+    );
+  }
+}
+
+// 8. CHANGE ACTIVE BRANCH
+async function changeBranch(branchId) {
+  const branch = currentBranches.find(b => b.id === branchId);
+
+  if (!branch) {
+    toast("Vous n'avez pas accès à cette pharmacie.");
+    return;
+  }
+
+  currentBranch = branch;
+  toast("Pharmacie sélectionnée : " + branch.name);
+
+  await showPage(currentPage);
+}
+
+// 9. BRANCH SELECTOR
+function branchSelectorHTML() {
+  if (currentBranches.length <= 1) {
+    return currentBranch
+      ? `<span class="badge badge-blue">${escapeHTML(currentBranch.name)}</span>`
+      : "";
+  }
+
+  return `
+    <select id="branchSelector" class="btn btn-secondary"
+      style="max-width:230px">
+      ${currentBranches.map(b => `
+        <option value="${escapeHTML(b.id)}"
+          ${currentBranch?.id === b.id ? "selected" : ""}>
+          ${escapeHTML(b.name)}
+        </option>
+      `).join("")}
+    </select>
+  `;
+}
+
+// 10. LOAD MEDICINES
+async function loadMedicines() {
+  const { data, error } = await db
+    .from("medicines")
+    .select("*")
+    .order("name");
+
+  if (error) throw error;
+
+  currentMedicines = data || [];
+  return currentMedicines;
+}
+
+// 11. LOAD STOCK
+async function loadStock() {
+  if (!currentBranch) return [];
+
+  const { data, error } = await db
+    .from("medicine_batches")
+    .select(`
+      id,
+      branch_id,
+      medicine_id,
+      lot_number,
+      expiry_date,
+      quantity_base_units,
+      unit_cost,
+      received_at,
+      created_at,
+      medicines (
+        id,
+        code,
+        name,
+        generic_name,
+        strength,
+        dosage_form
+      )
+    `)
+    .eq("branch_id", currentBranch.id)
+    .order("expiry_date", { ascending: true });
+
+  if (error) throw error;
+
+  currentStock = data || [];
+  return currentStock;
+}
+
+// 12. LOAD SALES
+async function loadSales() {
+  if (!currentBranch) return [];
+
+  const { data, error } = await db
+    .from("sales")
+    .select(`
+      id,
+      invoice_number,
+      branch_id,
+      cashier_id,
+      customer_name,
+      customer_phone,
+      subtotal,
+      discount,
+      total_amount,
+      payment_method,
+      status,
+      created_at
+    `)
+    .eq("branch_id", currentBranch.id)
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) throw error;
+
+  currentSales = data || [];
+  return currentSales;
+}
+
+// 13. LOAD EMPLOYEES
+async function loadEmployees() {
+  if (!currentBranch) return [];
+
+  const { data, error } = await db
+    .from("memberships")
+    .select(`
+      user_id,
+      branch_id,
+      role,
+      profiles (
+        full_name,
+        phone,
+        is_active
+      )
+    `)
+    .eq("branch_id", currentBranch.id);
+
+  if (error) throw error;
+
+  currentEmployees = data || [];
+  return currentEmployees;
+}
+
+// 14. DASHBOARD METRICS
+async function getDashboardMetrics() {
+  if (!currentBranch) {
+    throw new Error("Sélectionnez une pharmacie.");
+  }
+
+  const range = getBurundiDayRange();
+
+  const { data: todaySales, error: salesError } = await db
+    .from("sales")
+    .select("id,total_amount,status")
+    .eq("branch_id", currentBranch.id)
+    .gte("created_at", range.start)
+    .lt("created_at", range.end)
+    .eq("status", "COMPLETED");
+
+  if (salesError) throw salesError;
+
+  const { data: batches, error: stockError } = await db
+    .from("medicine_batches")
+    .select("id,medicine_id,quantity_base_units,expiry_date")
+    .eq("branch_id", currentBranch.id);
+
+  if (stockError) throw stockError;
+
+  const sales = todaySales || [];
+  const stock = batches || [];
+
+  const revenue = sales.reduce(
+    (sum, s) => sum + Number(s.total_amount || 0), 0
+  );
+
+  const medicineIds = new Set(
+    stock
+      .filter(b =>
+        Number(b.quantity_base_units || 0) > 0 &&
+        (!b.expiry_date || b.expiry_date >= getBurundiDateString())
+      )
+      .map(b => b.medicine_id)
+  );
+
+  const expired = stock.filter(b =>
+    b.expiry_date &&
+    b.expiry_date < getBurundiDateString() &&
+    Number(b.quantity_base_units || 0) > 0
+  ).length;
+
+  return {
+    salesCount: sales.length,
+    revenue,
+    medicineCount: currentMedicines.length,
+    availableMedicines: medicineIds.size,
+    batchCount: stock.length,
+    expiredBatches: expired
+  };
+}
+
+// 15. DASHBOARD PAGE
+async function renderDashboard() {
+  const metrics = await getDashboardMetrics();
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Tableau de bord</h2>
+        <p>${escapeHTML(currentBranch.name)} · ${getBurundiDateString()}</p>
+      </div>
+      ${branchSelectorHTML()}
+    </div>
+
+    <div class="grid">
+      <div class="stat-card">
+        <div class="stat-label">Chiffre d'affaires du jour</div>
+        <div class="stat-value">${money(metrics.revenue)}</div>
+        <div class="stat-note">Ventes terminées aujourd'hui</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Nombre de ventes</div>
+        <div class="stat-value">${metrics.salesCount}</div>
+        <div class="stat-note">Transactions du jour</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Médicaments disponibles</div>
+        <div class="stat-value">${metrics.availableMedicines}</div>
+        <div class="stat-note">Références avec stock utilisable</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Lots périmés avec stock</div>
+        <div class="stat-value">${metrics.expiredBatches}</div>
+        <div class="stat-note">À isoler immédiatement</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Informations de la pharmacie</h3>
+      <p><strong>Nom :</strong> ${escapeHTML(currentBranch.name)}</p>
+      <p><strong>Adresse :</strong> ${escapeHTML(currentBranch.address || "Non renseignée")}</p>
+      <p><strong>Téléphone :</strong> ${escapeHTML(currentBranch.phone || "Non renseigné")}</p>
+      <p><strong>Utilisateur :</strong> ${escapeHTML(currentProfile.full_name)}</p>
+      <p><strong>Rôle :</strong> ${escapeHTML(
+        currentMemberships.map(m => m.role).join(", ")
+      )}</p>
+    </div>
+
+    <div class="panel">
+      <h3>Dernières ventes</h3>
+      <div id="dashboardRecentSales" class="empty-state">
+        Chargement des ventes...
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Accès rapide</h3>
+      <div class="actions">
+        ${canSell()
+          ? '<button class="btn btn-primary" data-goto="sales">Nouvelle vente</button>'
+          : ""}
+        ${canManageStock()
+          ? '<button class="btn btn-secondary" data-goto="reception">Réception stock</button>'
+          : ""}
+        <button class="btn btn-secondary" data-goto="alerts">Voir les alertes</button>
+        ${canViewReports()
+          ? '<button class="btn btn-secondary" data-goto="reports">Rapports</button>'
+          : ""}
+      </div>
+    </div>
+  `;
+}
+
+async function loadDashboardRecentSales() {
+  const target = $("dashboardRecentSales");
+  if (!target) return;
+
+  try {
+    const sales = await loadSales();
+
+    if (!sales.length) {
+      target.innerHTML = "Aucune vente enregistrée.";
+      return;
+    }
+
+    target.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Facture</th>
+              <th>Client</th>
+              <th>Montant</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sales.slice(0, 5).map(s => `
+              <tr>
+                <td>${escapeHTML(s.invoice_number)}</td>
+                <td>${escapeHTML(s.customer_name || "Client comptoir")}</td>
+                <td>${money(s.total_amount)}</td>
+                <td>${new Date(s.created_at).toLocaleString("fr-FR")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (error) {
+    target.textContent = error.message;
+  }
+}
+
+// 16. MAIN PAGE ROUTER
+async function showPage(page) {
+  currentPage = page;
+
+  const content = $("pageContent");
+  content.innerHTML = `
+    <div class="empty-state">Chargement...</div>
+  `;
+
+  document.querySelectorAll(".nav-btn").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.page === page
+    );
+  });
+
+  try {
+    let html = "";
+
+    switch (page) {
+      case "dashboard":
+        html = await renderDashboard();
+        break;
+
+      case "sales":
+      case "medicines":
+      case "stock":
+      case "reception":
+      case "alerts":
+      case "branches":
+      case "employees":
+      case "invoices":
+      case "reports":
+      case "history":
+        html = `<div class="empty-state">
+          Module ${escapeHTML(page)} : chargement dans les parties suivantes.
+        </div>`;
+        break;
+
+      default:
+        html = `<div class="empty-state">Page introuvable.</div>`;
+    }
+
+    content.innerHTML = html;
+
+    if (page === "dashboard") {
+      await loadDashboardRecentSales();
+    }
+
+  } catch (error) {
+    content.innerHTML = `
+      <div class="panel">
+        <h3>Erreur de chargement</h3>
+        <p style="color:#dc2626">${escapeHTML(error.message)}</p>
+        <button class="btn btn-secondary" data-action="retry">
+          Réessayer
+        </button>
+      </div>
+    `;
+    console.error(error);
+  }
+}
+
+// 17. NAVIGATION EVENTS
+$("loginForm").addEventListener("submit", login);
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+  button.addEventListener("click", async () => {
+    $("sidebar").classList.remove("open");
+    await showPage(button.dataset.page);
+  });
+});
+
+$("mobileMenuButton").addEventListener("click", () => {
+  $("sidebar").classList.toggle("open");
+});
+
+$("logoutButton").addEventListener("click", async () => {
+  try {
+    await db.auth.signOut();
+    currentUser = null;
+    currentProfile = null;
+    currentMemberships = [];
+    currentBranches = [];
+    currentBranch = null;
+
+    $("appScreen").classList.add("hidden");
+    $("loginScreen").classList.remove("hidden");
+    $("loginPassword").value = "";
+    $("loginError").textContent = "";
+    toast("Session fermée.");
+  } catch (error) {
+    showError(error, "Déconnexion");
+  }
+});
+
+// 18. DYNAMIC BUTTON ACTIONS
+$("pageContent").addEventListener("click", async event => {
+  const gotoButton = event.target.closest("[data-goto]");
+  if (gotoButton) {
+    await showPage(gotoButton.dataset.goto);
+    return;
+  }
+
+  const retryButton = event.target.closest('[data-action="retry"]');
+  if (retryButton) {
+    await showPage(currentPage);
+  }
+});
+
+$("pageContent").addEventListener("change", async event => {
+  if (event.target.id === "branchSelector") {
+    await changeBranch(event.target.value);
+  }
+});
+
+// 19. SESSION RESTORE
+async function restoreSession() {
+  try {
+    const { data, error } = await db.auth.getSession();
+    if (error) throw error;
+
+    if (!data.session) return;
+
+    currentUser = data.session.user;
+    await loadUserData();
+
+    $("loginScreen").classList.add("hidden");
+    $("appScreen").classList.remove("hidden");
+
+    $("userDisplay").textContent =
+      currentProfile?.full_name || currentUser.email;
+
+    await showPage("dashboard");
+
+  } catch (error) {
+    console.error("Session restore:", error);
+    await db.auth.signOut();
+    currentUser = null;
+    $("loginScreen").classList.remove("hidden");
+    $("appScreen").classList.add("hidden");
+    $("loginError").textContent =
+      "Session invalide : " + error.message;
+  }
+}
+
+// 20. INITIALIZE
+restoreSession();
+</script>
+
+<!-- PART 3/4 CONTINUES HERE -->
+
+
+<script>
+/* =========================================================
+   PART 3/4 — SALES, STOCK, FEFO/FIFO, RECEPTION, ALERTS
+   ========================================================= */
+
+// ---------------------------------------------------------
+// 1. LOAD SALES PAGE
+// ---------------------------------------------------------
+async function renderSales() {
+  if (!canSell()) {
+    return `<div class="panel">Accès refusé aux ventes.</div>`;
+  }
+
+  await loadMedicines();
+  await loadStock();
+
+  const available = currentMedicines.filter(m =>
+    currentStock.some(b =>
+      b.medicine_id === m.id &&
+      Number(b.quantity_base_units || 0) > 0 &&
+      (!b.expiry_date || b.expiry_date >= getBurundiDateString())
+    )
+  );
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Nouvelle vente</h2>
+        <p>Enregistrement automatique et gestion FEFO/FIFO</p>
+      </div>
+      ${branchSelectorHTML()}
+    </div>
+
+    <div class="panel">
+      <h3>Informations client</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>Nom du client</label>
+          <input id="saleCustomerName" placeholder="Client comptoir">
+        </div>
+        <div class="field">
+          <label>Téléphone du client</label>
+          <input id="saleCustomerPhone" placeholder="+257...">
+        </div>
+        <div class="field">
+          <label>Mode de paiement</label>
+          <select id="salePayment">
+            <option value="CASH">Espèces</option>
+            <option value="MOBILE_MONEY">Mobile Money</option>
+            <option value="BANK">Banque</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Remise (BIF)</label>
+          <input id="saleDiscount" type="number" min="0" value="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Ajouter des médicaments</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>Médicament</label>
+          <select id="saleMedicine">
+            <option value="">Choisir un médicament</option>
+            ${available.map(m => `
+              <option value="${escapeHTML(m.id)}">
+                ${escapeHTML(m.name)}
+                ${m.strength ? " - " + escapeHTML(m.strength) : ""}
+              </option>
+            `).join("")}
+          </select>
+        </div>
+        <div class="field">
+          <label>Quantité</label>
+          <input id="saleQuantity" type="number" min="0.001"
+            step="0.001" value="1">
+        </div>
+        <div class="field">
+          <label>Prix de vente unitaire (BIF)</label>
+          <input id="saleUnitPrice" type="number" min="0" step="1">
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" id="addSaleItem" type="button">
+        + Ajouter au panier
+      </button>
+    </div>
+
+    <div class="panel">
+      <h3>Panier de vente</h3>
+      <div id="saleCartContent" class="empty-state">
+        Aucun médicament ajouté.
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="completeSaleButton"
+          type="button" disabled>
+          VALIDER LA VENTE
+        </button>
+        <button class="btn btn-secondary" id="clearSaleCart"
+          type="button">
+          Vider le panier
+        </button>
+      </div>
+      <div id="saleMessage" class="login-error"></div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 2. CART STATE
+// ---------------------------------------------------------
+let saleCart = [];
+
+function getMedicineName(medicineId) {
+  const medicine = currentMedicines.find(m => m.id === medicineId);
+  return medicine?.name || "Médicament inconnu";
+}
+
+function getUsableStock(medicineId) {
+  const today = getBurundiDateString();
+
+  return currentStock
+    .filter(b =>
+      b.medicine_id === medicineId &&
+      Number(b.quantity_base_units || 0) > 0 &&
+      (!b.expiry_date || b.expiry_date >= today)
+    )
+    .reduce((sum, b) => sum + Number(b.quantity_base_units), 0);
+}
+
+function renderSaleCart() {
+  const target = $("saleCartContent");
+  const submitButton = $("completeSaleButton");
+
+  if (!target) return;
+
+  if (!saleCart.length) {
+    target.innerHTML = "Aucun médicament ajouté.";
+    if (submitButton) submitButton.disabled = true;
+    return;
+  }
+
+  let subtotal = 0;
+
+  const rows = saleCart.map((item, index) => {
+    const total = item.quantity * item.unit_price;
+    subtotal += total;
+
+    return `
+      <tr>
+        <td>${escapeHTML(getMedicineName(item.medicine_id))}</td>
+        <td>${item.quantity}</td>
+        <td>${money(item.unit_price)}</td>
+        <td>${money(total)}</td>
+        <td>
+          <button class="btn btn-danger"
+            data-remove-cart="${index}">X</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  const discount = Math.max(
+    0, Number($("saleDiscount")?.value || 0)
+  );
+
+  const total = Math.max(0, subtotal - discount);
+
+  target.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Médicament</th>
+            <th>Qté</th>
+            <th>Prix unitaire</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="text-align:right;padding:15px">
+      <p>Sous-total : <strong>${money(subtotal)}</strong></p>
+      <p>Remise : <strong>${money(discount)}</strong></p>
+      <h3>Total : ${money(total)}</h3>
+    </div>
+  `;
+
+  if (submitButton) submitButton.disabled = false;
+}
+
+// ---------------------------------------------------------
+// 3. ADD ITEM TO CART
+// ---------------------------------------------------------
+function addSaleItem() {
+  const medicineId = $("saleMedicine").value;
+  const quantity = Number($("saleQuantity").value);
+  const unitPrice = Number($("saleUnitPrice").value);
+
+  if (!medicineId) {
+    toast("Choisissez un médicament.");
+    return;
+  }
+
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    toast("Quantité invalide.");
+    return;
+  }
+
+  if (!Number.isFinite(unitPrice) || unitPrice < 0) {
+    toast("Prix invalide.");
+    return;
+  }
+
+  const available = getUsableStock(medicineId);
+  const alreadyInCart = saleCart
+    .filter(i => i.medicine_id === medicineId)
+    .reduce((sum, i) => sum + i.quantity, 0);
+
+  if (quantity + alreadyInCart > available) {
+    toast("Stock insuffisant. Disponible : " + available);
+    return;
+  }
+
+  const existing = saleCart.find(
+    i => i.medicine_id === medicineId &&
+      i.unit_price === unitPrice
+  );
+
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    saleCart.push({
+      medicine_id: medicineId,
+      quantity,
+      unit_price: unitPrice
+    });
+  }
+
+  $("saleQuantity").value = "1";
+  renderSaleCart();
+}
+
+// ---------------------------------------------------------
+// 4. COMPLETE SALE THROUGH SQL TRANSACTION
+// ---------------------------------------------------------
+
+async function completeSale() {
+  if (!canSell()) {
+    toast("Vous n'avez pas la permission de vendre.");
+    return;
+  }
+
+  if (!currentBranch || !saleCart.length) {
+    toast("Panier vide ou pharmacie non sélectionnée.");
+    return;
+  }
+
+  const button = $("completeSaleButton");
+  const message = $("saleMessage");
+
+  if (!button || !message) {
+    toast("Erreur : éléments de vente introuvables.");
+    return;
+  }
+
+  const discount = Number($("saleDiscount")?.value || 0);
+
+  if (!Number.isFinite(discount) || discount < 0) {
+    toast("Remise invalide.");
+    return;
+  }
+
+  let subtotal = 0;
+
+  for (const item of saleCart) {
+    const quantity = Number(item.quantity);
+    const price = Number(item.unit_price);
+
+    if (
+      !item.medicine_id ||
+      !Number.isInteger(quantity) ||
+      quantity <= 0 ||
+      !Number.isFinite(price) ||
+      price <= 0
+    ) {
+      toast("Quantité ou prix invalide. Vérifiez le panier.");
+      return;
+    }
+
+    subtotal += quantity * price;
+  }
+
+  if (discount > subtotal) {
+    toast("La remise ne peut pas dépasser le sous-total.");
+    return;
+  }
+
+  const payload = saleCart.map(item => ({
+    medicine_id: item.medicine_id,
+    quantity: Number(item.quantity),
+    unit_price: Number(item.unit_price)
+  }));
+
+  button.disabled = true;
+  button.textContent = "ENREGISTREMENT...";
+  message.textContent = "";
+
+  try {
+    const { data, error } = await db.rpc(
+      "ramba_complete_sale",
+      {
+        p_branch_id: currentBranch.id,
+        p_items: payload,
+        p_customer_name:
+          $("saleCustomerName")?.value.trim() || null,
+        p_customer_phone:
+          $("saleCustomerPhone")?.value.trim() || null,
+        p_discount: discount,
+        p_payment_method:
+          $("salePayment")?.value || "CASH"
+      }
+    );
+
+    if (error) {
+      throw new Error(error.message || "Erreur Supabase.");
+    }
+
+    if (!data || data.success !== true || !data.sale_id) {
+      throw new Error(
+        data?.message || "La vente n'a pas été confirmée."
+      );
+    }
+
+    currentInvoice = data;
+    saleCart = [];
+
+    if ($("saleDiscount")) $("saleDiscount").value = "0";
+    if ($("saleCustomerName")) $("saleCustomerName").value = "";
+    if ($("saleCustomerPhone")) $("saleCustomerPhone").value = "";
+
+    renderSaleCart();
+
+    toast("Vente enregistrée : " + data.invoice_number);
+
+    await Promise.all([
+      loadStock(),
+      loadSales()
+    ]);
+
+    await showInvoice(data.sale_id);
+
+  } catch (error) {
+    console.error("Complete sale:", error);
+
+    const errorText =
+      error?.message || "Erreur pendant l'enregistrement.";
+
+    message.textContent = errorText;
+    toast("Vente non enregistrée : " + errorText, 6000);
+
+  } finally {
+    button.textContent = "VALIDER LA VENTE";
+    button.disabled = saleCart.length === 0;
+    renderSaleCart();
+  }
+}
+  
+
+// ---------------------------------------------------------
+// 5. SALES PAGE EVENTS
+// ---------------------------------------------------------
+function attachSalesEvents() {
+  $("addSaleItem")?.addEventListener("click", addSaleItem);
+
+  $("completeSaleButton")?.addEventListener(
+    "click", completeSale
+  );
+
+  $("clearSaleCart")?.addEventListener("click", () => {
+    saleCart = [];
+    renderSaleCart();
+  });
+
+  $("saleDiscount")?.addEventListener("input", renderSaleCart);
+
+  $("saleCartContent")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-remove-cart]");
+    if (!button) return;
+
+    saleCart.splice(Number(button.dataset.removeCart), 1);
+    renderSaleCart();
+  });
+
+  $("saleMedicine")?.addEventListener("change", () => {
+    const id = $("saleMedicine").value;
+    const medicine = currentMedicines.find(m => m.id === id);
+
+    // Price is entered by the cashier because the current
+    // medicines schema's sale-price column is not confirmed.
+    $("saleUnitPrice").value =
+      medicine?.sale_price ?? "";
+  });
+}
+
+// ---------------------------------------------------------
+// 6. STOCK PAGE
+// ---------------------------------------------------------
+async function renderStock() {
+  await loadMedicines();
+  await loadStock();
+
+  const today = getBurundiDateString();
+
+  const rows = currentStock.map(batch => {
+    const quantity = Number(batch.quantity_base_units || 0);
+    const expired = batch.expiry_date &&
+      batch.expiry_date < today;
+
+    return `
+      <tr>
+        <td>${escapeHTML(batch.medicines?.name || "Inconnu")}</td>
+        <td>${escapeHTML(batch.lot_number || "-")}</td>
+        <td>${escapeHTML(batch.expiry_date || "-")}</td>
+        <td>${quantity}</td>
+        <td>${expired
+          ? '<span class="badge badge-red">Périmé</span>'
+          : quantity <= 0
+            ? '<span class="badge badge-red">Épuisé</span>'
+            : '<span class="badge badge-green">Disponible</span>'}
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Gestion du stock</h2>
+        <p>Lots, quantités et dates de péremption</p>
+      </div>
+      ${branchSelectorHTML()}
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Médicament</th>
+              <th>Lot</th>
+              <th>Péremption</th>
+              <th>Quantité</th>
+              <th>État</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || '<tr><td colspan="5">Aucun stock enregistré.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 7. STOCK RECEPTION PAGE
+// ---------------------------------------------------------
+async function renderReception() {
+  if (!canManageStock()) {
+    return `<div class="panel">Accès refusé à la réception.</div>`;
+  }
+
+  await loadMedicines();
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Réception de stock</h2>
+        <p>Entrée de nouveaux lots dans la pharmacie</p>
+      </div>
+      ${branchSelectorHTML()}
+    </div>
+
+    <div class="notice">
+      Chaque réception crée un nouveau lot et un mouvement de stock.
+      La vente utilisera automatiquement FEFO/FIFO.
+    </div>
+
+    <div class="panel">
+      <h3>Nouvelle réception</h3>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Médicament</label>
+          <select id="receiveMedicine">
+            <option value="">Choisir un médicament</option>
+            ${currentMedicines.map(m => `
+              <option value="${escapeHTML(m.id)}">
+                ${escapeHTML(m.name)}
+              </option>
+            `).join("")}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Numéro de lot</label>
+          <input id="receiveLot" placeholder="Ex : LOT-2026-001">
+        </div>
+
+        <div class="field">
+          <label>Date de péremption</label>
+          <input id="receiveExpiry" type="date">
+        </div>
+
+        <div class="field">
+          <label>Quantité en unités de base</label>
+          <input id="receiveQuantity" type="number"
+            min="0.001" step="0.001" placeholder="Ex : 120">
+        </div>
+
+        <div class="field">
+          <label>Coût d'achat par unité (BIF)</label>
+          <input id="receiveUnitCost" type="number"
+            min="0" step="1" value="0">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="receiveStockButton"
+          class="btn btn-primary" type="button">
+          ENREGISTRER LA RÉCEPTION
+        </button>
+      </div>
+
+      <div id="receiveMessage" class="login-error"></div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 8. RECEIVE STOCK THROUGH SQL TRANSACTION
+// ---------------------------------------------------------
+async function receiveStock() {
+  if (!canManageStock()) {
+    toast("Permission de réception refusée.");
+    return;
+  }
+
+  const medicineId = $("receiveMedicine").value;
+  const lot = $("receiveLot").value.trim();
+  const expiry = $("receiveExpiry").value;
+  const quantity = Number($("receiveQuantity").value);
+  const unitCost = Number($("receiveUnitCost").value || 0);
+
+  if (!medicineId || !lot || !expiry) {
+    toast("Remplissez tous les champs obligatoires.");
+    return;
+  }
+
+  if (!Number.isFinite(quantity) || quantity <= 0 ||
+      !Number.isFinite(unitCost) || unitCost < 0) {
+    toast("Quantité ou coût invalide.");
+    return;
+  }
+
+  if (expiry < getBurundiDateString()) {
+    toast("Refus : ce lot est déjà périmé.");
+    return;
+  }
+
+  const button = $("receiveStockButton");
+  const message = $("receiveMessage");
+
+  button.disabled = true;
+  button.textContent = "ENREGISTREMENT...";
+
+  try {
+    const { data, error } = await db.rpc(
+      "ramba_receive_stock",
+      {
+        p_branch_id: currentBranch.id,
+        p_medicine_id: medicineId,
+        p_lot_number: lot,
+        p_expiry_date: expiry,
+        p_quantity: quantity,
+        p_unit_cost: unitCost
+      }
+    );
+
+    if (error) throw error;
+
+    if (!data?.success) {
+      throw new Error("Réception non confirmée.");
+    }
+
+    message.textContent =
+      "Réception enregistrée. Quantité ajoutée : " + quantity;
+
+    $("receiveLot").value = "";
+    $("receiveQuantity").value = "";
+    $("receiveUnitCost").value = "0";
+
+    await loadStock();
+    toast("Stock augmenté avec succès.");
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = error.message;
+    toast("Erreur : " + error.message, 6000);
+  } finally {
+    button.disabled = false;
+    button.textContent = "ENREGISTRER LA RÉCEPTION";
+  }
+}
+
+// ---------------------------------------------------------
+// 9. ALERTS: EXPIRED, NEAR EXPIRY, LOW, OUT OF STOCK
+// ---------------------------------------------------------
+async function buildStockAlerts() {
+  await loadMedicines();
+  await loadStock();
+
+  const today = getBurundiDateString();
+  const todayDate = new Date(today + "T00:00:00");
+
+  const alerts = [];
+
+  for (const medicine of currentMedicines) {
+    const batches = currentStock.filter(
+      b => b.medicine_id === medicine.id
+    );
+
+    const usableBatches = batches.filter(b =>
+      Number(b.quantity_base_units || 0) > 0 &&
+      (!b.expiry_date || b.expiry_date >= today)
+    );
+
+    const usableQuantity = usableBatches.reduce(
+      (sum, b) => sum + Number(b.quantity_base_units || 0), 0
+    );
+
+    const expiredBatches = batches.filter(b =>
+      b.expiry_date &&
+      b.expiry_date < today &&
+      Number(b.quantity_base_units || 0) > 0
+    );
+
+    const nearExpiryBatches = usableBatches.filter(b => {
+      if (!b.expiry_date) return false;
+
+      const expiry = new Date(b.expiry_date + "T00:00:00");
+      const days = Math.ceil(
+        (expiry - todayDate) / 86400000
+      );
+
+      return days >= 0 && days <= 90;
+    });
+
+    if (expiredBatches.length) {
+      alerts.push({
+        type: "EXPIRED",
+        level: "danger",
+        medicine,
+        quantity: expiredBatches.reduce(
+          (sum, b) => sum + Number(b.quantity_base_units || 0), 0
+        ),
+        message: "Lot périmé : retirer du stock vendable."
+      });
+    }
+
+    if (nearExpiryBatches.length) {
+      alerts.push({
+        type: "NEAR_EXPIRY",
+        level: "warning",
+        medicine,
+        quantity: nearExpiryBatches.reduce(
+          (sum, b) => sum + Number(b.quantity_base_units || 0), 0
+        ),
+        message: "Lot proche de la péremption."
+      });
+    }
+
+    if (usableQuantity === 0) {
+      alerts.push({
+        type: "OUT_OF_STOCK",
+        level: "danger",
+        medicine,
+        quantity: 0,
+        message: "Rupture de stock : à commander."
+      });
+    }
+  }
+
+  currentAlerts = alerts;
+  return alerts;
+}
+
+// ---------------------------------------------------------
+// 10. ALERTS PAGE
+// ---------------------------------------------------------
+async function renderAlerts() {
+  const alerts = await buildStockAlerts();
+
+  const rows = alerts.map(alert => `
+    <tr>
+      <td>${escapeHTML(alert.medicine.name)}</td>
+      <td>${alert.type === "EXPIRED"
+        ? '<span class="badge badge-red">Périmé</span>'
+        : alert.type === "NEAR_EXPIRY"
+          ? '<span class="badge badge-yellow">Expire bientôt</span>'
+          : '<span class="badge badge-red">Rupture</span>'}
+      </td>
+      <td>${alert.quantity}</td>
+      <td>${escapeHTML(alert.message)}</td>
+    </tr>
+  `).join("");
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Alertes de stock</h2>
+        <p>Contrôle des lots et des médicaments à commander</p>
+      </div>
+      ${branchSelectorHTML()}
+    </div>
+
+    <div class="panel">
+      <h3>Alertes détectées : ${alerts.length}</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Médicament</th>
+              <th>Type d'alerte</th>
+              <th>Quantité</th>
+              <th>Action recommandée</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || '<tr><td colspan="4">Aucune alerte détectée.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 11. INVOICE PRINTING
+// ---------------------------------------------------------
+async function showInvoice(saleId) {
+  const { data: sale, error: saleError } = await db
+    .from("sales")
+    .select("*")
+    .eq("id", saleId)
+    .single();
+
+  if (saleError) throw saleError;
+
+  const { data: items, error: itemsError } = await db
+    .from("sale_items")
+    .select(`
+      quantity,
+      unit_price,
+      line_total,
+      medicines(name, strength)
+    `)
+    .eq("sale_id", saleId);
+
+  if (itemsError) throw itemsError;
+
+  const branch = currentBranches.find(
+    b => b.id === sale.branch_id
+  );
+
+  const invoiceWindow = window.open("", "_blank");
+
+  if (!invoiceWindow) {
+    toast("Autorisez les fenêtres pop-up pour imprimer la facture.");
+    return;
+  }
+
+  const rows = (items || []).map(item => `
+    <tr>
+      <td>${escapeHTML(item.medicines?.name || "Médicament")}</td>
+      <td>${Number(item.quantity)}</td>
+      <td>${money(item.unit_price)}</td>
+      <td>${money(item.line_total)}</td>
+    </tr>
+  `).join("");
+
+  invoiceWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+      <meta charset="UTF-8">
+      <title>Facture ${escapeHTML(sale.invoice_number)}</title>
+      <style>
+        body{font-family:Arial,sans-serif;padding:25px;color:#172033}
+        h1{text-align:center;color:#075e54}
+        .center{text-align:center}
+        table{width:100%;border-collapse:collapse;margin-top:25px}
+        th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
+        .total{text-align:right;margin-top:25px;font-size:20px;font-weight:bold}
+        .footer{text-align:center;margin-top:45px;font-size:12px;color:#666}
+        @media print{button{display:none}}
+      </style>
+    </head>
+    <body>
+      <h1>PHARMACIE RAMBA</h1>
+      <div class="center">
+        <p>${escapeHTML(branch?.name || "Pharmacie Ramba")}</p>
+        <p>${escapeHTML(branch?.address || "Bujumbura, Burundi")}</p>
+      </div>
+      <hr>
+      <h2>FACTURE</h2>
+      <p><strong>N° :</strong> ${escapeHTML(sale.invoice_number)}</p>
+      <p><strong>Date :</strong> ${new Date(sale.created_at).toLocaleString("fr-FR")}</p>
+      <p><strong>Client :</strong> ${escapeHTML(sale.customer_name || "Client comptoir")}</p>
+      <p><strong>Téléphone :</strong> ${escapeHTML(sale.customer_phone || "-")}</p>
+
+      <table>
+        <thead>
+          <tr><th>Médicament</th><th>Qté</th><th>Prix</th><th>Total</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <div class="total">
+        Sous-total : ${money(sale.subtotal)}<br>
+        Remise : ${money(sale.discount)}<br>
+        Total à payer : ${money(sale.total_amount)}
+      </div>
+
+      <div class="footer">
+        Merci de votre confiance.<br>
+        Votre santé, notre priorité.
+      </div>
+
+      <p class="center"><button onclick="window.print()">IMPRIMER</button></p>
+    </body>
+    </html>
+  `);
+
+  invoiceWindow.document.close();
+}
+
+// ---------------------------------------------------------
+// 12. INVENTORY PAGE EVENT ATTACHMENT
+// ---------------------------------------------------------
+function attachReceptionEvents() {
+  $("receiveStockButton")?.addEventListener(
+    "click", receiveStock
+  );
+}
+
+// ---------------------------------------------------------
+// 13. PAGE ROUTER EXTENSION
+// Replace the showPage function from PART 2 with this one.
+// ---------------------------------------------------------
+async function showPage(page) {
+  currentPage = page;
+
+  const content = $("pageContent");
+  content.innerHTML = '<div class="empty-state">Chargement...</div>';
+
+  document.querySelectorAll(".nav-btn").forEach(button => {
+    button.classList.toggle(
+      "active", button.dataset.page === page
+    );
+  });
+
+  try {
+    let html = "";
+
+    switch (page) {
+      case "dashboard":
+        html = await renderDashboard();
+        break;
+
+      case "sales":
+        html = await renderSales();
+        break;
+
+      case "stock":
+        html = await renderStock();
+        break;
+
+      case "reception":
+        html = await renderReception();
+        break;
+
+      case "alerts":
+        html = await renderAlerts();
+        break;
+
+      case "medicines":
+      case "branches":
+      case "employees":
+      case "invoices":
+      case "reports":
+      case "history":
+        html = `<div class="empty-state">
+          Ce module sera chargé dans la partie 4/4.
+        </div>`;
+        break;
+
+      default:
+        html = '<div class="empty-state">Page introuvable.</div>';
+    }
+
+    content.innerHTML = html;
+
+    if (page === "dashboard") {
+      await loadDashboardRecentSales();
+    }
+
+    if (page === "sales") {
+      attachSalesEvents();
+    }
+
+    if (page === "reception") {
+      attachReceptionEvents();
+    }
+
+  } catch (error) {
+    console.error("Page:", error);
+    content.innerHTML = `
+      <div class="panel">
+        <h3>Erreur</h3>
+        <p style="color:#dc2626">${escapeHTML(error.message)}</p>
+        <button class="btn btn-secondary" data-action="retry">
+          Réessayer
+        </button>
+      </div>
+    `;
+  }
+}
+
+</script>
+
+<!-- PART 4/4 CONTINUES HERE -->
+
+
+
+  
+<script>
+/* =========================================================
+   PART 4/4 — REPORTS, INVOICES, EMPLOYEES, HISTORY
+   FINAL APPLICATION ROUTER
+   ========================================================= */
+
+// ---------------------------------------------------------
+// 1. MEDICINES PAGE
+// ---------------------------------------------------------
+async function renderMedicines() {
+  await loadMedicines();
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Liste des médicaments</h2>
+        <p>Répertoire des produits pharmaceutiques</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="field">
+        <label>Rechercher un médicament</label>
+        <input id="medicineSearch" placeholder="Nom, code, dosage...">
+      </div>
+
+      <div id="medicineTable" class="table-wrap">
+        ${medicineTableHTML(currentMedicines)}
+      </div>
+    </div>
+  `;
+}
+
+function medicineTableHTML(medicines) {
+  if (!medicines.length) {
+    return '<div class="empty-state">Aucun médicament enregistré.</div>';
+  }
+
+  return `
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Nom</th>
+          <th>Nom générique</th>
+          <th>Dosage</th>
+          <th>Forme</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${medicines.map(m => `
+          <tr>
+            <td>${escapeHTML(m.code || "-")}</td>
+            <td>${escapeHTML(m.name || "-")}</td>
+            <td>${escapeHTML(m.generic_name || "-")}</td>
+            <td>${escapeHTML(m.strength || "-")}</td>
+            <td>${escapeHTML(m.dosage_form || "-")}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function attachMedicineEvents() {
+  $("medicineSearch")?.addEventListener("input", event => {
+    const term = event.target.value.toLowerCase().trim();
+
+    const filtered = currentMedicines.filter(m => {
+      const text = [
+        m.code, m.name, m.generic_name,
+        m.strength, m.dosage_form
+      ].join(" ").toLowerCase();
+
+      return text.includes(term);
+    });
+
+    $("medicineTable").innerHTML =
+      medicineTableHTML(filtered);
+  });
+}
+
+// ---------------------------------------------------------
+// 2. BRANCHES PAGE
+// ---------------------------------------------------------
+async function renderBranches() {
+  await loadBranches();
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Pharmacies</h2>
+        <p>Établissements accessibles à votre compte</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      ${currentBranches.map(branch => `
+        <div class="stat-card">
+          <div class="stat-label">${escapeHTML(branch.code || "")}</div>
+          <div style="font-weight:800;margin-top:10px">
+            ${escapeHTML(branch.name)}
+          </div>
+          <p style="font-size:12px;color:#64748b">
+            ${escapeHTML(branch.address || "Adresse non renseignée")}
+          </p>
+          <p style="font-size:12px">
+            ${escapeHTML(branch.phone || "Téléphone non renseigné")}
+          </p>
+          <button class="btn btn-secondary"
+            data-select-branch="${escapeHTML(branch.id)}">
+            Sélectionner
+          </button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 3. EMPLOYEES PAGE
+// ---------------------------------------------------------
+async function renderEmployees() {
+  await loadEmployees();
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Employés</h2>
+        <p>Utilisateurs associés à cette pharmacie</p>
+      </div>
+      ${branchSelectorHTML()}
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom complet</th>
+              <th>Téléphone</th>
+              <th>Rôle</th>
+              <th>État</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${currentEmployees.map(employee => `
+              <tr>
+                <td>${escapeHTML(
+                  employee.profiles?.full_name || employee.user_id
+                )}</td>
+                <td>${escapeHTML(
+                  employee.profiles?.phone || "-"
+                )}</td>
+                <td>${escapeHTML(employee.role || "-")}</td>
+                <td>${employee.profiles?.is_active
+                  ? '<span class="badge badge-green">Actif</span>'
+                  : '<span class="badge badge-red">Inactif</span>'}
+                </td>
+              </tr>
+            `).join("") || `
+              <tr><td colspan="4">Aucun employé trouvé.</td></tr>
+            `}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 4. INVOICES PAGE
+// ---------------------------------------------------------
+async function renderInvoices() {
+  await loadSales();
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Factures</h2>
+        <p>Historique des ventes et factures</p>
+      </div>
+      ${branchSelectorHTML()}
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>N° facture</th>
+              <th>Client</th>
+              <th>Date</th>
+              <th>Montant</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${currentSales.map(sale => `
+              <tr>
+                <td>${escapeHTML(sale.invoice_number || "-")}</td>
+                <td>${escapeHTML(sale.customer_name || "Client comptoir")}</td>
+                <td>${new Date(sale.created_at).toLocaleString("fr-FR")}</td>
+                <td>${money(sale.total_amount)}</td>
+                <td>
+                  <button class="btn btn-secondary"
+                    data-print-invoice="${escapeHTML(sale.id)}">
+                    Imprimer
+                  </button>
+                </td>
+              </tr>
+            `).join("") || `
+              <tr><td colspan="5">Aucune facture enregistrée.</td></tr>
+            `}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 5. DATE RANGE FOR DAILY REPORTS
+// ---------------------------------------------------------
+function getDateRangeForBurundiDay(dateString) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    throw new Error("Date invalide.");
+  }
+
+  const start = new Date(dateString + "T00:00:00+03:00");
+  const end = new Date(start.getTime() + 86400000);
+
+  return {
+    start: start.toISOString(),
+    end: end.toISOString()
+  };
+}
+
+// ---------------------------------------------------------
+// 6. DAILY REPORT DATA
+// ---------------------------------------------------------
+async function getDailyReport(dateString) {
+  if (!currentBranch) {
+    throw new Error("Aucune pharmacie sélectionnée.");
+  }
+
+  const range = getDateRangeForBurundiDay(dateString);
+
+  const { data: sales, error: salesError } = await db
+    .from("sales")
+    .select(`
+      id,
+      invoice_number,
+      customer_name,
+      total_amount,
+      payment_method,
+      created_at
+    `)
+    .eq("branch_id", currentBranch.id)
+    .eq("status", "COMPLETED")
+    .gte("created_at", range.start)
+    .lt("created_at", range.end)
+    .order("created_at", { ascending: true });
+
+  if (salesError) throw salesError;
+
+  const saleList = sales || [];
+  const totalRevenue = saleList.reduce(
+    (sum, sale) => sum + Number(sale.total_amount || 0), 0
+  );
+
+  const saleIds = saleList.map(s => s.id);
+  let items = [];
+
+  if (saleIds.length) {
+    const { data, error } = await db
+      .from("sale_items")
+      .select(`
+        medicine_id,
+        quantity,
+        unit_price,
+        line_total,
+        medicines(name)
+      `)
+      .in("sale_id", saleIds);
+
+    if (error) throw error;
+    items = data || [];
+  }
+
+  const quantities = {};
+
+  items.forEach(item => {
+    const name = item.medicines?.name || "Médicament";
+    if (!quantities[name]) {
+      quantities[name] = {
+        quantity: 0,
+        amount: 0
+      };
+    }
+
+    quantities[name].quantity += Number(item.quantity || 0);
+    quantities[name].amount += Number(item.line_total || 0);
+  });
+
+  return {
+    date: dateString,
+    sales: saleList,
+    items,
+    quantities,
+    totalRevenue,
+    saleCount: saleList.length,
+    itemCount: items.reduce(
+      (sum, item) => sum + Number(item.quantity || 0), 0
+    )
+  };
+}
+
+// ---------------------------------------------------------
+// 7. REPORTS PAGE
+// ---------------------------------------------------------
+async function renderReports() {
+  if (!canViewReports()) {
+    return `<div class="panel">Accès refusé aux rapports.</div>`;
+  }
+
+  const today = getBurundiDateString();
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Rapports journaliers</h2>
+        <p>Chiffre d'affaires et ventes par date</p>
+      </div>
+      ${branchSelectorHTML()}
+    </div>
+
+    <div class="panel">
+      <h3>Sélectionner une date</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>Date du rapport</label>
+          <input type="date" id="reportDate" value="${today}">
+        </div>
+      </div>
+      <div class="actions">
+        <button id="loadReportButton" class="btn btn-primary">
+          AFFICHER LE RAPPORT
+        </button>
+        <button id="printReportButton" class="btn btn-secondary">
+          IMPRIMER LE RAPPORT
+        </button>
+      </div>
+      <div id="reportMessage" class="login-error"></div>
+    </div>
+
+    <div id="dailyReportContent">
+      <div class="empty-state">Choisissez une date pour afficher le rapport.</div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 8. DISPLAY DAILY REPORT
+// ---------------------------------------------------------
+let currentDailyReport = null;
+
+async function loadDailyReport() {
+  const date = $("reportDate").value;
+  const target = $("dailyReportContent");
+  const message = $("reportMessage");
+
+  if (!date) {
+    message.textContent = "Choisissez une date.";
+    return;
+  }
+
+  message.textContent = "";
+  target.innerHTML = '<div class="empty-state">Chargement...</div>';
+
+  try {
+    const report = await getDailyReport(date);
+    currentDailyReport = report;
+
+    const productRows = Object.entries(report.quantities)
+      .map(([name, value]) => `
+        <tr>
+          <td>${escapeHTML(name)}</td>
+          <td>${value.quantity}</td>
+          <td>${money(value.amount)}</td>
+        </tr>
+      `).join("");
+
+    const salesRows = report.sales.map(sale => `
+      <tr>
+        <td>${escapeHTML(sale.invoice_number)}</td>
+        <td>${escapeHTML(sale.customer_name || "Client comptoir")}</td>
+        <td>${new Date(sale.created_at).toLocaleTimeString("fr-FR")}</td>
+        <td>${money(sale.total_amount)}</td>
+      </tr>
+    `).join("");
+
+    target.innerHTML = `
+      <div class="grid">
+        <div class="stat-card">
+          <div class="stat-label">Chiffre d'affaires</div>
+          <div class="stat-value">${money(report.totalRevenue)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Nombre de ventes</div>
+          <div class="stat-value">${report.saleCount}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unités vendues</div>
+          <div class="stat-value">${report.itemCount}</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Ventes du ${escapeHTML(report.date)}</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Facture</th>
+                <th>Client</th>
+                <th>Heure</th>
+                <th>Montant</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${salesRows || '<tr><td colspan="4">Aucune vente.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Médicaments vendus</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Médicament</th><th>Quantité</th><th>Montant</th></tr>
+            </thead>
+            <tbody>
+              ${productRows || '<tr><td colspan="3">Aucun médicament vendu.</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+  } catch (error) {
+    console.error(error);
+    target.innerHTML = `
+      <div class="panel" style="color:#dc2626">
+        ${escapeHTML(error.message)}
+      </div>
+    `;
+  }
+}
+
+// ---------------------------------------------------------
+// 9. PRINT DAILY REPORT
+// ---------------------------------------------------------
+function printDailyReport() {
+  if (!currentDailyReport) {
+    toast("Affichez d'abord un rapport.");
+    return;
+  }
+
+  const report = currentDailyReport;
+  const printWindow = window.open("", "_blank");
+
+  if (!printWindow) {
+    toast("Autorisez les fenêtres pop-up pour imprimer.");
+    return;
+  }
+
+  const products = Object.entries(report.quantities)
+    .map(([name, value]) => `
+      <tr>
+        <td>${escapeHTML(name)}</td>
+        <td>${value.quantity}</td>
+        <td>${money(value.amount)}</td>
+      </tr>
+    `).join("");
+
+  const sales = report.sales.map(sale => `
+    <tr>
+      <td>${escapeHTML(sale.invoice_number)}</td>
+      <td>${escapeHTML(sale.customer_name || "Client comptoir")}</td>
+      <td>${new Date(sale.created_at).toLocaleTimeString("fr-FR")}</td>
+      <td>${money(sale.total_amount)}</td>
+    </tr>
+  `).join("");
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+      <meta charset="UTF-8">
+      <title>Rapport journalier ${escapeHTML(report.date)}</title>
+      <style>
+        body{font-family:Arial,sans-serif;padding:25px;color:#172033}
+        h1,h2{text-align:center;color:#075e54}
+        table{width:100%;border-collapse:collapse;margin:18px 0}
+        th,td{border:1px solid #ddd;padding:9px;text-align:left}
+        .summary{padding:15px;background:#f1f5f9;margin:15px 0}
+        .total{font-size:21px;font-weight:bold}
+        @media print{button{display:none}}
+      </style>
+    </head>
+    <body>
+      <h1>PHARMACIE RAMBA</h1>
+      <h2>RAPPORT JOURNALIER</h2>
+      <p><strong>Pharmacie :</strong> ${escapeHTML(currentBranch.name)}</p>
+      <p><strong>Date :</strong> ${escapeHTML(report.date)}</p>
+
+      <div class="summary">
+        <p>Nombre de ventes : ${report.saleCount}</p>
+        <p>Unités vendues : ${report.itemCount}</p>
+        <p class="total">Chiffre d'affaires : ${money(report.totalRevenue)}</p>
+      </div>
+
+      <h3>Détail des ventes</h3>
+      <table>
+        <thead>
+          <tr><th>Facture</th><th>Client</th><th>Heure</th><th>Montant</th></tr>
+        </thead>
+        <tbody>${sales || '<tr><td colspan="4">Aucune vente</td></tr>'}</tbody>
+      </table>
+
+      <h3>Produits vendus</h3>
+      <table>
+        <thead>
+          <tr><th>Médicament</th><th>Quantité</th><th>Montant</th></tr>
+        </thead>
+        <tbody>${products || '<tr><td colspan="3">Aucun produit</td></tr>'}</tbody>
+      </table>
+
+      <p>Rapport généré le ${new Date().toLocaleString("fr-FR")}</p>
+      <button onclick="window.print()">IMPRIMER</button>
+    </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+}
+
+// ---------------------------------------------------------
+// 10. HISTORY PAGE — STOCK MOVEMENTS
+// ---------------------------------------------------------
+async function renderHistory() {
+  if (!currentBranch) {
+    return '<div class="panel">Aucune pharmacie sélectionnée.</div>';
+  }
+
+  const { data, error } = await db
+    .from("stock_movements")
+    .select(`
+      id,
+      movement_type,
+      quantity,
+      notes,
+      created_at,
+      medicines(name),
+      medicine_batches(lot_number)
+    `)
+    .eq("branch_id", currentBranch.id)
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) throw error;
+
+  const rows = (data || []).map(movement => `
+    <tr>
+      <td>${new Date(movement.created_at).toLocaleString("fr-FR")}</td>
+      <td>${escapeHTML(movement.medicines?.name || "-")}</td>
+      <td>${escapeHTML(movement.movement_type)}</td>
+      <td>${Number(movement.quantity)}</td>
+      <td>${escapeHTML(movement.medicine_batches?.lot_number || "-")}</td>
+      <td>${escapeHTML(movement.notes || "-")}</td>
+    </tr>
+  `).join("");
+
+  return `
+    <div class="page-heading">
+      <div>
+        <h2>Historique du stock</h2>
+        <p>Entrées, sorties et mouvements enregistrés</p>
+      </div>
+      ${branchSelectorHTML()}
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Médicament</th>
+              <th>Type</th>
+              <th>Quantité</th>
+              <th>Lot</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || '<tr><td colspan="6">Aucun mouvement enregistré.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 11. FINAL PAGE ROUTER
+// This replaces earlier showPage definitions.
+// ---------------------------------------------------------
+async function showPage(page) {
+  currentPage = page;
+
+  const content = $("pageContent");
+  content.innerHTML = '<div class="empty-state">Chargement...</div>';
+
+  document.querySelectorAll(".nav-btn").forEach(button => {
+    button.classList.toggle(
+      "active", button.dataset.page === page
+    );
+  });
+
+  try {
+    let html = "";
+
+    switch (page) {
+      case "dashboard":
+        html = await renderDashboard();
+        break;
+
+      case "sales":
+        html = await renderSales();
+        break;
+
+      case "medicines":
+        html = await renderMedicines();
+        break;
+
+      case "stock":
+        html = await renderStock();
+        break;
+
+      case "reception":
+        html = await renderReception();
+        break;
+
+      case "alerts":
+        html = await renderAlerts();
+        break;
+
+      case "branches":
+        html = await renderBranches();
+        break;
+
+      case "employees":
+        html = await renderEmployees();
+        break;
+
+      case "invoices":
+        html = await renderInvoices();
+        break;
+
+      case "reports":
+        html = await renderReports();
+        break;
+
+      case "history":
+        html = await renderHistory();
+        break;
+
+      default:
+        html = '<div class="empty-state">Page introuvable.</div>';
+    }
+
+    content.innerHTML = html;
+
+    if (page === "dashboard") {
+      await loadDashboardRecentSales();
+    }
+
+    if (page === "sales") {
+      attachSalesEvents();
+    }
+
+    if (page === "reception") {
+      attachReceptionEvents();
+    }
+
+    if (page === "medicines") {
+      attachMedicineEvents();
+    }
+
+    if (page === "reports") {
+      $("loadReportButton")?.addEventListener(
+        "click", loadDailyReport
+      );
+
+      $("printReportButton")?.addEventListener(
+        "click", printDailyReport
+      );
+
+      await loadDailyReport();
+    }
+
+  } catch (error) {
+    console.error("Page loading:", error);
+
+    content.innerHTML = `
+      <div class="panel">
+        <h3>Erreur de chargement</h3>
+        <p style="color:#dc2626">${escapeHTML(error.message)}</p>
+        <button class="btn btn-secondary" data-action="retry">
+          Réessayer
+        </button>
+      </div>
+    `;
+  }
+}
+
+// ---------------------------------------------------------
+// 12. FINAL PAGE ACTIONS
+// ---------------------------------------------------------
+$("pageContent").addEventListener("click", async event => {
+  const invoiceButton = event.target.closest("[data-print-invoice]");
+
+  if (invoiceButton) {
+    try {
+      await showInvoice(invoiceButton.dataset.printInvoice);
+    } catch (error) {
+      showError(error, "Facture");
+    }
+    return;
+  }
+
+  const branchButton = event.target.closest("[data-select-branch]");
+
+  if (branchButton) {
+    await changeBranch(branchButton.dataset.selectBranch);
+  }
+});
+
+// ---------------------------------------------------------
+// 13. STARTUP MESSAGE
+// ---------------------------------------------------------
+console.log("Gestion Pharmacie Ramba ERP — modules chargés.");
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+</body>
+</html>
